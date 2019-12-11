@@ -1,5 +1,6 @@
-""" make_dataset.py
-    Collection of utils that make 
+""" uniprot.py
+
+    Make pandas DataFrame from SwissProt data set. 
 """
 import ftplib, gzip, re, tempfile
 from pathlib import Path
