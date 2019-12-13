@@ -21,8 +21,8 @@ def train_lm(vocab,
     :arch:       Name of network architecture.
     :config:     Dictionary with network architecture parameters
     """
-    fastai_vocab = fastai.Vocab({index: word for index, word in enumerate(vocab)})
-    src = fastai.ItemLists(workdir,
+    fastai_vocab = fastai.text.Vocab({index: word for index, word in enumerate(vocab)})
+    src = fastai.text.ItemLists(workdir,
                             fastai.text.TextList(items=train, 
                                                  vocab=fastai_vocab, 
                                                  path=workdir,
@@ -34,13 +34,20 @@ def train_lm(vocab,
     src = src.label_for_lm()
     data_lm = src.databunch(bs=batch_size, bptt=bptt)
 
-    learner = fastai.language_model_learner(data_lm,
-                                            arch,
-                                            config=make_configuration,
+    learner = fastai.text.language_model_learner(data_lm,
+                                            get_arch(arch),
+                                            config=make_configuration(arch, config),
                                             pretrained=False,
                                             drop_mult=dropout,
                                             clip=clip,
                                             wd=weight_decay)
+
+def get_arch(arch):
+    if arch == "AWD_LSTM":
+        return fastai.text.AWD_LSTM
+    else:
+        raise ValueError("Unsupported architecture")
+
 
 def make_configuration(arch, config):
     """

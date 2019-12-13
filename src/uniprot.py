@@ -91,8 +91,12 @@ class Dataset(object):
                 pe = int(m.group(0))
                 m = rex_organism.search(description)
                 organism = m.groups()[0]
-                data_dict = {'ID':accession, 
-                 'name':name,  'dataset':dataset,  'proteinexistence':pe,  'organism':organism,  'sequence':sequence}
+                data_dict = {'ID':accession,
+                             'name':name,
+                             'dataset':dataset,
+                             'proteinexistence':pe,
+                             'organism':organism,
+                             'sequence':sequence}
                 rows.append(data_dict)
 
         df = pd.DataFrame(rows).set_index('ID')
@@ -101,3 +105,18 @@ class Dataset(object):
         df['organism'] = df.organism.astype('category')
         df['sequence'] = df.sequence.astype(str)
         return df
+
+def transform(df, min_seq_len=0, max_seq_len=0, min_protein_existence=0):
+    """ Filter dataset
+    """
+    df = df.copy()
+    
+    if min_seq_len > 0:
+        df = df[df.sequence.apply(len) >= min_seq_len]
+    if max_seq_len > 0:
+        df = df[df.sequence.apply(len) <= max_seq_len]
+    if min_protein_existence > 0:
+        if "proteinexistence" in df.columns:
+            df = df[df.proteinexistence >= min_protein_existence]
+    return df
+
